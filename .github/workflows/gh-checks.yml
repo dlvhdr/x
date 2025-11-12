@@ -1,0 +1,63 @@
+name: gh-checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - gh-checks/**
+      - .github/workflows/gh-checks.yml
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ./gh-checks
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: ./gh-checks/go.mod
+          cache: true
+          cache-dependency-path: ./gh-checks/go.sum
+      - run: go build -v ./...
+      - run: go test -race -v ./...
+
+  lint:
+    uses: charmbracelet/meta/.github/workflows/lint.yml@main
+    with:
+      directory: gh-checks
+
+  coverage:
+    strategy:
+      matrix:
+        go-version: [^1]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    defaults:
+      run:
+        working-directory: ./gh-checks
+    runs-on: ${{ matrix.os }}
+    env:
+      GO111MODULE: "on"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Coverage
+        run: |
+          go test -race -covermode=atomic -coverprofile='coverage.txt' ./...
+
+      - uses: codecov/codecov-action@v5
+        with:
+          file: ./coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
