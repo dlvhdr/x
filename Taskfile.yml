@@ -35,3 +35,8 @@ tasks:
     cmds:
       - for: { var: PACKAGES }
         cmd: cd {{.ITEM}} && go mod tidy
+
+  publish:
+    cmds:
+      - git tag gh-checks/$(svu minor)
+      - GOPROXY=proxy.golang.org go list -m github.com/dlvhdr/x/gh-checks@v0.2.0

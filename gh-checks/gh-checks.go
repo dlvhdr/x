@@ -90,3 +90,8 @@ func IsConclusionAFailure(conclusion string) bool {
 func IsConclusionASuccess(conclusion string) bool {
 	return conclusion == string(CheckRunStateSuccess)
 }
+
+// IsConclusionNeutral checks if the status is neutral.
+func IsConclusionNeutral(conclusion string) bool {
+	return conclusion == string(CheckRunStateNeutral)
+}
