@@ -95,3 +95,44 @@ func IsConclusionASuccess(conclusion string) bool {
 func IsConclusionNeutral(conclusion string) bool {
 	return conclusion == string(CheckRunStateNeutral)
 }
+
+// ContextCountByState is the number of checks runs with the specified state.
+type ContextCountByState struct {
+	Count int
+	State CheckRunState
+}
+
+// Stats are the number for each check bucket.
+type Stats struct {
+	Succeeded  int
+	Neutral    int
+	Failed     int
+	Skipped    int
+	InProgress int
+}
+
+// AccumulatedStats returns the accumlated counts for each check bucket.
+func AccumulatedStats(checkRuns, statusContext []ContextCountByState) Stats {
+	var res Stats
+
+	allChecks := make([]ContextCountByState, 0)
+	allChecks = append(allChecks, checkRuns...)
+	allChecks = append(allChecks, statusContext...)
+
+	for _, count := range allChecks {
+		state := string(count.State)
+		if IsStatusWaiting(state) {
+			res.InProgress += count.Count
+		} else if IsConclusionAFailure(state) {
+			res.Failed += count.Count
+		} else if IsConclusionASkip(state) {
+			res.Skipped += count.Count
+		} else if IsConclusionNeutral(state) {
+			res.Neutral += count.Count
+		} else if IsConclusionASuccess(state) {
+			res.Succeeded += count.Count
+		}
+	}
+
+	return res
+}
