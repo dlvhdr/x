@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  PACKAGES: [gh-checks]
+  PACKAGES: [gh-checks, help]
 
 tasks:
   fmt:
