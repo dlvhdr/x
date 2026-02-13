@@ -115,7 +115,7 @@ type Stats struct {
 func AccumulatedStats(checkRuns, statusContext []ContextCountByState) Stats {
 	var res Stats
 
-	allChecks := make([]ContextCountByState, 0)
+	allChecks := make([]ContextCountByState, 0, len(checkRuns)+len(statusContext))
 	allChecks = append(allChecks, checkRuns...)
 	allChecks = append(allChecks, statusContext...)
 
